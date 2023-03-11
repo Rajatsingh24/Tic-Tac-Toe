@@ -87,3 +87,35 @@ button{
     border-radius: 9px;
     cursor: pointer;
 }
+@media (max-width:950px) {
+    body{
+        transform: none;
+    }
+    .tictactoe{
+        font-size: 15vw;
+        margin-top: 5vw;
+        margin-bottom: 13vw;
+    }
+    .rotate30{
+        height: 70vw;
+        width: 70vw;
+        padding: 5vw;
+        transform: rotate3d(1.1,1.1,-2,30deg);
+    }
+    td{
+        width: 15vw;
+        height: 15vw;
+        font-size: 12vw;
+    }
+    .endGame{
+        margin-left: 5vw;
+        margin-top: 15vw;
+        font-size: 7vw;
+    }
+    .endGame .text{
+        margin-bottom: 5vw;
+    }
+    .button{
+        font-size: 3vw;
+    }
+}
