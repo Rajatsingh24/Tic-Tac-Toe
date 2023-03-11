@@ -1,4 +1,6 @@
 var origBoard;
+var whichPlayer=true;
+var isPvP=true;
 const huPlayer="O";
 const aiPlayer="X";
 const winCombos=[
@@ -13,30 +15,59 @@ const winCombos=[
 ]
 
 const cells =document.querySelectorAll('.cell');
-startGame();
-
-function startGame(){
-    document.querySelector(".endGame").style.display="none";
+function PvE(){
+    isPvP=false;
+    document.querySelector(".endGame").classList.remove("op");
     origBoard=Array.from(Array(9).keys());
     for(let i=0;i<cells.length;i++){
         cells[i].innerText='';
         cells[i].style.removeProperty('background-color');
+        cells[i].classList.remove("op");
+        cells[i].classList.remove("shadow");
         cells[i].addEventListener('click',turnClick,false);
     }
 }
+function PvP(){
+    whichPlayer=true;
+    isPvP=true;
+    document.querySelector(".endGame").classList.remove("op");
+    origBoard=Array.from(Array(9).keys());
+    for(let i=0;i<cells.length;i++){
+        cells[i].innerText='';
+        cells[i].style.removeProperty('background-color');
+        cells[i].classList.remove("op");
+        cells[i].classList.remove("shadow");
+        cells[i].addEventListener('click',turnClick1,false);
+    }
+}
 
+function turnClick1(square){
+    if(typeof origBoard[square.target.id] == "number"){
+        setTimeout(() => {
+            turn(square.target.id,whichPlayer ?huPlayer:aiPlayer);
+            checkTie();
+            whichPlayer=!whichPlayer;
+        },50);
+    }
+}
 function turnClick(square){
     if(typeof origBoard[square.target.id] == "number"){
-        turn(square.target.id,huPlayer);
-        if(!checkWin(origBoard,huPlayer) && !checkTie()) {
-            turn(bestSpot() , aiPlayer);
-        }
+        setTimeout(() => {
+            turn(square.target.id,huPlayer);
+            if(!checkWin(origBoard,huPlayer) && !checkTie()) {
+                setTimeout(() => {
+                    turn(bestSpot() , aiPlayer);
+                }, 50);
+            }
+        }, 50);
+            
     }
 }
 
 function turn(squareId,player){
     origBoard[squareId]=player;
     document.getElementById(squareId).innerText=player;
+    document.getElementById(squareId).classList.add("op");
     let gameWon=checkWin(origBoard,player);
     if(gameWon) gameOver(gameWon);
 }
@@ -55,17 +86,17 @@ function checkWin(board,player){
 
 function gameOver(gameWon){
     for(let index of winCombos[gameWon.index]){
-        document.getElementById(index).style.backgroundColor =
-        gameWon.player==huPlayer ? "blue":"red";
+        document.getElementById(index).classList.add("shadow");
     }
     for(var i=0;i<cells.length;i++){
-        cells[i].removeEventListener('click',turnClick,false);
+        cells[i].removeEventListener('click',(isPvP)?turnClick1:turnClick,false);
     }
-    declareWinner(gameWon.player==huPlayer ? "You Win!":"You Lose.");
+    declareWinner((isPvP)?(gameWon.player==huPlayer?"<span class='span'>O</span> First Player Win.":"<span class='span'>X</span> Second Player Win."):(gameWon.player==huPlayer ? "<span class='span'>O</span> You Win!":"<span class='span'>X</span> You Lose."));
 }
 function declareWinner(who){
-    document.querySelector(".endGame").style.display="block";
-    document.querySelector(".endGame .text").innerText=who;
+    document.querySelector(".endGame").classList.add("op");
+    document.querySelector(".endGame .text").innerHTML=who;
+    document.querySelector(".endGame").classList.add("op");
 }
 function emptySquares(){
     return origBoard.filter( s => typeof s == "number");
@@ -78,10 +109,10 @@ function bestSpot(){
 function checkTie(){
     if(emptySquares().length==0){
         for(var i=0;i<cells.length;i++){
-            cells[i].style.backgroundColor = "green";
-            cells[i].removeEventListener("click",turnClick,false);
+            cells[i].classList.add("shadow");
+            cells[i].removeEventListener("click",(isPvP)?turnClick1:turnClick,false);
         }
-        declareWinner("Tie Game!");
+        declareWinner("<span class='span'>XO</span> Tie Game!");
         return true;
     }
     return false;
